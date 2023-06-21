@@ -20,10 +20,20 @@ app.use("/api/comment", require("./routes/commentRouter.js"));
 
 //connect to MongoDB
 mongoose.set("strictQuery", true);
-app.use(express.static(path.join(__dirname, "client", "build")));
-mongoose.connect(process.env.MONGO_URL, () =>
-  console.log("Connected to the DB")
-);
+mongoose
+  .connect(process.env.MONGO_URL)
+  .then(() => {
+    console.log("Connected to the DB");
+    // Start the Express server
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Failed to connect to the DB:", error);
+  });
+
+app.use(express.static(path.join(__dirname, "client", "dist")));
 
 // Error handler
 app.use((err, req, res, next) => {
@@ -34,7 +44,7 @@ app.use((err, req, res, next) => {
   return res.send({ errMsg: err.message });
 });
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
 });
 //Server Listen
 app.listen(9000, () => {
