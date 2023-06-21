@@ -11,7 +11,6 @@ process.env.SECRET;
 //Middleware
 app.use(express.json());
 app.use(morgan("dev"));
-app.use(express.static(path.join(__dirname, "client", "build")));
 
 //Routes (go here)
 app.use("/auth", require("./routes/authRouter.js"));
@@ -21,17 +20,10 @@ app.use("/api/comment", require("./routes/commentRouter.js"));
 
 //connect to MongoDB
 mongoose.set("strictQuery", true);
-
-(async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URL);
-    console.log("Connected to the DB");
-  } catch (error) {
-    console.error("Error connecting to the DB:", error);
-  }
-})();
-
 app.use(express.static(path.join(__dirname, "client", "build")));
+mongoose.connect(process.env.MONGO_URL, () =>
+  console.log("Connected to the DB")
+);
 
 // Error handler
 app.use((err, req, res, next) => {
